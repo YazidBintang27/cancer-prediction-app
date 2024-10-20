@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    app:cardCornerRadius="20dp"
+    android:clickable="true"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="12dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_image_news"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/noimage"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/tv_title_news"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/iv_image_news"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="North Korean troops seen being equipped in Russia ahead of likely deployment to Ukraine - CNN"
+            android:fontFamily="@font/opensans_semibold"
+            android:textSize="14sp"
+            android:maxLines="2"
+            android:layout_marginHorizontal="8dp"
+            android:singleLine="false"
+            android:layout_marginTop="12dp"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tv_author_news"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/opensans_medium"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toTopOf="@id/tv_date_news"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_image_news"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_news"
+            app:layout_constraintVertical_bias="0.1"
+            tools:text="Isaac Yee, Victoria Butenko, Niamh Kennedy" />
+
+        <TextView
+            android:id="@+id/tv_date_news"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/opensans_medium"
+            android:maxLines="1"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_image_news"
+            app:layout_constraintTop_toBottomOf="@id/tv_author_news"
+            tools:text="2024-10-20" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
