@@ -1,5 +1,7 @@
 package com.dicoding.asclepius.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -39,6 +41,7 @@ class NewsActivity : AppCompatActivity() {
       binding.newsToolbar.setNavigationOnClickListener { onBackPressed() }
       setupAdapter()
       getData()
+      openNewsDetail()
    }
 
    private fun setupAdapter() {
@@ -66,5 +69,17 @@ class NewsActivity : AppCompatActivity() {
             }
          }
       }
+   }
+
+   private fun openNewsDetail() {
+      newsAdapter.setOnClickCallback(object: NewsAdapter.OnItemClickCallback {
+         override fun onItemClicked(index: Int) {
+            lifecycleScope.launch {
+               newsViewModel.newsData.collect { news ->
+                  startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(news?.get(index)?.url)))
+               }
+            }
+         }
+      })
    }
 }

@@ -14,6 +14,11 @@ import java.util.Locale
 class NewsAdapter: RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
 
    private var newsData: List<NewsResponse.Article?>? = listOf()
+   private lateinit var onItemClickCallback: OnItemClickCallback
+
+   interface OnItemClickCallback {
+      fun onItemClicked(index: Int)
+   }
 
    class ViewHolder(
       private val binding: ItemNewsCardBinding
@@ -47,11 +52,16 @@ class NewsAdapter: RecyclerView.Adapter<NewsAdapter.ViewHolder>() {
 
    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
       holder.bind(newsData?.get(position))
+      holder.itemView.setOnClickListener { onItemClickCallback.onItemClicked(position) }
    }
 
    @SuppressLint("NotifyDataSetChanged")
    fun setData(newsData: List<NewsResponse.Article?>?) {
       this.newsData = newsData
       notifyDataSetChanged()
+   }
+
+   fun setOnClickCallback(onItemClickCallback: OnItemClickCallback) {
+      this.onItemClickCallback = onItemClickCallback
    }
 }
