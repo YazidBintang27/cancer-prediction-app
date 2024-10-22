@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dicoding.asclepius.data.remote.model.NewsResponse
-import com.dicoding.asclepius.data.remote.repository.NewsRepository
+import com.dicoding.asclepius.data.remote.repository.Repository
 import com.dicoding.asclepius.helper.ApiHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-   private val newsRepository: NewsRepository
+   private val repository: Repository
 ): ViewModel() {
    private var _isLoading = MutableStateFlow<Boolean?>(null)
    val isLoading: StateFlow<Boolean?> = _isLoading.asStateFlow()
@@ -31,7 +31,7 @@ class NewsViewModel @Inject constructor(
       viewModelScope.launch {
          _isLoading.value = true
          try {
-            val data = newsRepository.getAllNews(
+            val data = repository.getAllNews(
                ApiHelper.Q,
                ApiHelper.COUNTRY,
                ApiHelper.CATEGORY,
