@@ -5,20 +5,31 @@ import android.Manifest
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.dicoding.asclepius.R
 import com.dicoding.asclepius.databinding.ActivityMainBinding
+import com.dicoding.asclepius.helper.ImageClassifierHelper
+import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.tensorflow.lite.task.vision.classifier.Classifications
+import java.io.File
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private var currentImageUri: Uri? = null
+    private lateinit var imageClassifierHelper: ImageClassifierHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,22 +54,96 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+        binding.galleryButton.setOnClickListener { startGallery() }
+        binding.analyzeButton.setOnClickListener { analyzeImage() }
+    }
+
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            val resultUri: Uri? = UCrop.getOutput(data!!)
+            resultUri?.let {
+                currentImageUri = it
+                showImage()
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            cropError?.let { Log.e("UCropError", it.message.toString()) }
+        }
     }
 
     private fun startGallery() {
-        // TODO: Mendapatkan gambar dari Gallery.
+        launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+
+    private val launcherGallery = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            currentImageUri = uri
+            cropImage(uri)
+            showImage()
+        } else {
+            Log.d("Photo Picker", "No media selected")
+        }
     }
 
     private fun showImage() {
-        // TODO: Menampilkan gambar sesuai Gallery yang dipilih.
+        currentImageUri?.let {
+            Log.d("ImageURI", "showImage: $it")
+            binding.previewImageView.setImageURI(it)
+        }
+    }
+
+    private fun cropImage(sourceUri: Uri) {
+        val destinationUri = Uri.fromFile(File(cacheDir, "croppedImage.jpg"))
+
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .withMaxResultSize(1080, 1080)
+            .start(this)
     }
 
     private fun analyzeImage() {
-        // TODO: Menganalisa gambar yang berhasil ditampilkan.
+        imageClassifierHelper = ImageClassifierHelper(
+            context = this,
+            classifierListener = object: ImageClassifierHelper.ClassifierListener {
+                override fun onError(message: String) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        showToast(message)
+                    }
+                }
+
+                override fun onResults(results: List<Classifications>?) {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        results?.let { result ->
+                            if (result.isNotEmpty() && result[0].categories.isNotEmpty()) {
+                                val topCategory = result[0].categories.maxByOrNull { it.score }
+                                topCategory?.let { category ->
+                                    moveToResult(currentImageUri!!, category.label, category.score)
+                                }
+                            } else {
+                                showToast("Error analyzing image")
+                            }
+                        }
+                    }
+                }
+            }
+        )
+        if (currentImageUri != null) {
+            imageClassifierHelper.classifyStaticImage(imageUri = currentImageUri!!)
+        } else {
+            showToast("Choose image first!")
+        }
     }
 
-    private fun moveToResult() {
+    private fun moveToResult(imageUri: Uri, result: String, score: Float) {
         val intent = Intent(this, ResultActivity::class.java)
+        intent.putExtra("imageUri", imageUri.toString())
+        intent.putExtra("label", result)
+        intent.putExtra("score", score)
         startActivity(intent)
     }
 
