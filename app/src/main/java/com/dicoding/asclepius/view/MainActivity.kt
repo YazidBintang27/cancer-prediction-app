@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import java.io.File
+import java.util.UUID
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -103,7 +104,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cropImage(sourceUri: Uri) {
-        val destinationUri = Uri.fromFile(File(cacheDir, "croppedImage.jpg"))
+        val uniqueFileName = "editedImage_${UUID.randomUUID()}.jpg"
+        val destinationUri = Uri.fromFile(File(cacheDir, uniqueFileName))
 
         val options = UCrop.Options()
         UCrop.of(sourceUri, destinationUri)
