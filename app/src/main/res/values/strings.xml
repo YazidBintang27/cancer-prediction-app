@@ -10,4 +10,5 @@
     <string name="simpan">Save</string>
     <string name="failed_image_classifier">Failed initialize image classifier</string>
     <string name="prediction_history">Prediction history</string>
+    <string name="crop">Edit Image</string>
 </resources>

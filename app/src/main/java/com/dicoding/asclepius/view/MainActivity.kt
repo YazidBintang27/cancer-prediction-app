@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -83,6 +84,10 @@ class MainActivity : AppCompatActivity() {
     ) { uri: Uri? ->
         if (uri != null) {
             currentImageUri = uri
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
             cropImage(uri)
             showImage()
         } else {
@@ -100,8 +105,15 @@ class MainActivity : AppCompatActivity() {
     private fun cropImage(sourceUri: Uri) {
         val destinationUri = Uri.fromFile(File(cacheDir, "croppedImage.jpg"))
 
+        val options = UCrop.Options()
         UCrop.of(sourceUri, destinationUri)
-            .withAspectRatio(1f, 1f)
+            .withAspectRatio(16f, 9f)
+            .withOptions(options.apply {
+                setStatusBarColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+                setToolbarColor(ContextCompat.getColor(this@MainActivity, R.color.primary))
+                setToolbarTitle(ContextCompat.getString(this@MainActivity, R.string.crop))
+                setToolbarWidgetColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+            })
             .withMaxResultSize(1080, 1080)
             .start(this)
     }
