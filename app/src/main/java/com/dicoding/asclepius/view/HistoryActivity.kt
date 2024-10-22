@@ -43,7 +43,7 @@ class HistoryActivity : AppCompatActivity() {
       }
       binding.historyToolbar.setNavigationOnClickListener { onBackPressed() }
       setupAdapter()
-      checkStoragePermission()
+      getData()
    }
 
    private fun setupAdapter() {
@@ -61,42 +61,5 @@ class HistoryActivity : AppCompatActivity() {
             historyAdapter.setData(it)
          }
       }
-   }
-
-   private fun checkStoragePermission() {
-      if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-         != PackageManager.PERMISSION_GRANTED) {
-         ActivityCompat.requestPermissions(this,
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            STORAGE_PERMISSION_CODE)
-      } else {
-         getData()
-      }
-   }
-
-   override fun onRequestPermissionsResult(
-      requestCode: Int,
-      permissions: Array<out String>,
-      grantResults: IntArray
-   ) {
-      super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-      if (requestCode == STORAGE_PERMISSION_CODE) {
-         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Izin diberikan, ambil data
-            getData()
-         } else {
-            // Izin ditolak, beri tahu pengguna
-            Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-         }
-      }
-   }
-
-   override fun onResume() {
-      super.onResume()
-      checkStoragePermission()
-   }
-
-   companion object {
-      private const val STORAGE_PERMISSION_CODE = 100
    }
 }

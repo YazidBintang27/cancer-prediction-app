@@ -3,6 +3,7 @@ package com.dicoding.asclepius.adapter
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -21,14 +22,13 @@ class HistoryAdapter: RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
       fun bind(data: PredictionEntity) {
          binding.apply {
             try {
-               val uri = Uri.parse(data.image)
-               val inputStream = itemView.context.contentResolver.openInputStream(uri)
-               val bitmap = BitmapFactory.decodeStream(inputStream)
-               ivPredictionImage.setImageBitmap(bitmap)
+               ivPredictionImage.setImageURI(Uri.parse(data.image))
+            } catch (e: SecurityException) {
+               Log.e("SecurityException", "${e.message}")
+               ivPredictionImage.setImageResource(R.drawable.noimage)
+            } finally {
                tvPredictionResult.text = data.result
                tvPredictionScore.text = NumberFormat.getPercentInstance().format(data.confidenceScore)
-            } catch (e: SecurityException) {
-               ivPredictionImage.setImageResource(R.drawable.noimage)
             }
          }
       }
